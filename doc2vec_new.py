@@ -1,10 +1,4 @@
 import gensim
-import pandas
-from nltk import RegexpTokenizer
-from nltk.corpus import stopwords
-from os import listdir
-from os.path import isfile, join
-import xlrd
 import pandas as pd
 
 
@@ -24,7 +18,6 @@ class LabeledLineSentence(object):
           for idx, doc in enumerate(self.doc_list):
               yield gensim.models.doc2vec.TaggedDocument(doc,
                                                           [self.labels_list[idx]])
-
 # iterator returned over all documents
 it = LabeledLineSentence(data, docLabels)
 
@@ -38,6 +31,7 @@ for epoch in range(10):
  model.train(it,total_examples=model.corpus_count,epochs=model.epochs)
  model.alpha -= 0.002
  model.min_alpha = model.alpha
+
 #saving the created model
 model.save('doc2vec.model')
 print("model saved")
@@ -46,20 +40,13 @@ print("model saved")
 #loading the model
 d2v_model = gensim.models.doc2vec.Doc2Vec.load("doc2vec.model")
 
-#start testing
 
-
-#to get most similar document with similarity scores using document-index
-
-
-
+# write the result to txt
 f = open("10most_similarities.txt", "a")
 for city in range(2):
     similar_doc = d2v_model.docvecs.most_similar(docLabels[city])
     for t in similar_doc:
         f.write(f.write(' '.join(str(s) for s in t) + '\n'))
 f.close()
-
-
 
 
