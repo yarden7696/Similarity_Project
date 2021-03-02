@@ -45,8 +45,8 @@ d2v_model = gensim.models.doc2vec.Doc2Vec.load("doc2vec.model")
 f = open("10most_similarities.txt", "a")
 for city in range(2):
     similar_doc = d2v_model.docvecs.most_similar(docLabels[city])
-    for t in similar_doc:
-        f.write(f.write(' '.join(str(s) for s in t) + '\n'))
+    # for x in similar_doc:
+    f.write('\n'.join('{} {}'.format(x[0], x[1]) for x in similar_doc))
 f.close()
 
 
