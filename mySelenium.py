@@ -5,9 +5,10 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
 nltk.download('stopwords')
 
-
+ps = PorterStemmer()
 stoplist = stopwords.words('english')
 
 def clean(s):
@@ -15,8 +16,10 @@ def clean(s):
     s = s.strip()
     # remove unwanted words
     out = ' '.join(word for word in s.split() if not word in stoplist)
+    # stemming
+    sentence = ' '.join(ps.stem(word) for word in out.split())
     # remove punctuation in the string
-    return ''.join(ch for ch in out if ch not in string.punctuation)
+    return ''.join(ch for ch in sentence if ch not in string.punctuation)
 
 
 def main():
@@ -60,11 +63,12 @@ def crawl(city, country, df, j):
             title = i.find_all('h3')
             content = i.find_all('p')
             for k in range(len(title)):
+                clean_title = clean(title[k].text.lower())
                 clean_text = clean(content[k].text.lower())
-                text += '\n' + title[k].text + '\n' + clean_text
+                text += '\n' + clean_title + '\n' + clean_text
         df.loc[j, 'description'] = text
     except:
-        print("")
+        print("error")
 
 
 if __name__ == '__main__':
