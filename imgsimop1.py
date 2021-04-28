@@ -37,17 +37,31 @@ city2city=[]
 total=[]
 for i in range(len(cities)):
     for j in range(len(cities)):
-        cos_sim = cosine_similarity(vector_list[i].reshape((1, -1)), vector_list[j].reshape((1, -1)))[0][0]
-        # make heatmap of my option 1:
-        print("similarity between ", cities[i] ,"to", cities[j], "is:", cos_sim)
+        pic2city.clear()
+        total2city=0
+        for k in range(NumPics):
+            total2pics = 0
+            pic2pics.clear()
+            for l in range(NumPics):
+                cos_sim = cosine_similarity(vector_list[i][k].reshape((1, -1)), vector_list[j][l].reshape((1, -1)))[0][0]
+                total2pics += cos_sim
+                pic2pics.append(cos_sim)
+            # add similarity between pic k from citiy i to pics of city j
+            total2city += total2pics
+            pic2city.append(pic2pics.copy())
+        # make heat map of optiob 1:
+        print("similarity between ", cities[i] ,"to", cities[j], "is:", float(total2city/400))
         similarity_heatmap_data = similarity_heatmap_data.append(
                         {
-                            'similarity': cos_sim,
+                            'similarity': float(total2city/400),
                             'city1': cities[i],
                             'city2': cities[j]
                         },
                         ignore_index=True
                     )
+        total.append(total2city)
+        city2city.append(pic2city.copy())
+
 
 
 
