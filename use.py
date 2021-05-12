@@ -2,6 +2,7 @@ import tensorflow as tf
 #tf.compat.v1.placeholder()
 #tf.compat.v1.disable_v2_behavior()
 import tensorflow_hub as hub
+from sklearn.preprocessing import minmax_scale
 '''
 Versions of packages 
 tensorflow==2.0.0
@@ -41,16 +42,17 @@ def load_USE_encoder(module):
 encoder = load_USE_encoder('./USE')
 df = pd.read_excel('first_300_des_res.xlsx',engine='openpyxl')
 docLabels = df['city'].tolist()
-messages= df['description'].tolist()[:24]
+messages= df['description'].tolist()[:12]
 
 # encode the messages
 encoded_messages = encoder(messages)
-print("encoded",encoded_messages)
+# print("encoded",encoded_messages)
 
 # cosine similarities
 num_messages = len(messages)
 similarities_df = pd.DataFrame()
 similarity_heatmap_data = pd.DataFrame()
+res = []
 for i in range(num_messages):
     for j in range(num_messages): 
         # cos(theta) = x * y / (mag_x * mag_y)
@@ -59,7 +61,7 @@ for i in range(num_messages):
         mag_j = np.sqrt(np.dot(encoded_messages[j], encoded_messages[j]))
 
         cos_theta = dot_product / (mag_i * mag_j)
-
+        res.append(cos_theta)
         similarities_df = similarities_df.append(
             {
                 'similarity': cos_theta,
@@ -68,21 +70,26 @@ for i in range(num_messages):
             },
             ignore_index=True
         )
+index = 0
+normalized_res = minmax_scale(res)
+for i in range(num_messages):
+    for j in range(num_messages):
         # for heatmap
         similarity_heatmap_data = similarity_heatmap_data.append(
             {
-                'similarity': cos_theta,
+                'similarity': normalized_res[index],
                 'city1': docLabels[i],
                 'city2': docLabels[j]
             },
             ignore_index=True
         )
+        index = index+1
 
 # convert similarity matrix into dataframe
 similarity_heatmap = similarity_heatmap_data.pivot("city1", "city2", "similarity")
 
 # filter data frame get 10 biggest similarity for each city
-# similarity heatmap = dataframe 24*14
+# similarity heatmap = dataframe 12*12
 
 for i in range(len(messages)):
     result = []
@@ -101,5 +108,6 @@ for i in range(len(messages)):
 df.to_excel('10mostSimilarCities.xlsx')
 
 # visualize the results
-ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu")
+ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu", vmin=0, vmax=1)
+plt.title("Text Similarity")
 plt.show()

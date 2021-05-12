@@ -4,6 +4,7 @@ import seaborn as sns
 from img2vec_pytorch import Img2Vec
 from sklearn.metrics.pairwise import cosine_similarity
 from PIL import Image
+from sklearn.preprocessing import minmax_scale
 # Initialize Img2Vec with GPU
 img2vec = Img2Vec()
 import glob
@@ -19,7 +20,7 @@ similarity_heatmap_data = pd.DataFrame()
 citiesfinal= []
 # go through all cities pictures directories
 '''change to directory of images in your computer'''
-for filepath in glob.iglob(r'C:\Users\user\Desktop\final_project\im\*', recursive=True):
+for filepath in glob.iglob(r'C:\Users\shova\Desktop\finalProject\im\*', recursive=True):
     city=str(filepath)
     city= city[39:]
     cities.append(city)
@@ -35,25 +36,33 @@ pic2pics=[]
 pic2city=[]
 city2city=[]
 total=[]
+res = []
 for i in range(len(cities)):
     for j in range(len(cities)):
         cos_sim = cosine_similarity(vector_list[i].reshape((1, -1)), vector_list[j].reshape((1, -1)))[0][0]
         # make heatmap of my option 1:
         print("similarity between ", cities[i] ,"to", cities[j], "is:", cos_sim)
-        similarity_heatmap_data = similarity_heatmap_data.append(
-                        {
-                            'similarity': cos_sim,
-                            'city1': cities[i],
-                            'city2': cities[j]
-                        },
-                        ignore_index=True
-                    )
+        res.append(cos_sim)
 
+index = 0
+normalized_res = minmax_scale(res)
+for i in range(len(cities)):
+    for j in range(len(cities)):
+        similarity_heatmap_data = similarity_heatmap_data.append(
+            {
+                'similarity': normalized_res[index],
+                'city1': cities[i],
+                'city2': cities[j]
+            },
+            ignore_index=True
+       )
+        index = index+1
 
 
 # plot sims/ set results
 similarity_heatmap = similarity_heatmap_data.pivot(index="city1", columns="city2", values="similarity")
-ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu")
+ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu",vmin=0, vmax=1)
+plt.title("Image Similarity - Our Option")
 plt.show()
 
 

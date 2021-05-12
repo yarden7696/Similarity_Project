@@ -4,6 +4,7 @@ import seaborn as sns
 from img2vec_pytorch import Img2Vec
 from sklearn.metrics.pairwise import cosine_similarity
 from PIL import Image
+from sklearn.preprocessing import minmax_scale
 
 # Initialize Img2Vec with GPU
 img2vec = Img2Vec()
@@ -20,7 +21,7 @@ similarity_heatmap_data = pd.DataFrame()
 citiesfinal= []
 # go through all cities pictures directories
 '''change to directory of images in your computer'''
-for filepath in glob.iglob(r'C:\Users\user\Desktop\final_project\im\*', recursive=True):
+for filepath in glob.iglob(r'C:\Users\shova\Desktop\finalProject\im\*', recursive=True):
     city=str(filepath)
     city= city[39:]
     cities.append(city)
@@ -58,7 +59,7 @@ max2city = []
 final_score = []
 for city, i in zip(city2city, range(len(cities))):
     max2pic.clear()
-    temp_score = [0] * 24
+    temp_score = [0] * 12
     for pic, j in zip(city, range(20)):
         (city_name, pic_num, sim) = max(pic, key=lambda x: x[2])
         print(cities[i], "pic", j, "- the most similar pic is:", city_name, "pic", pic_num, "sim=", sim)
@@ -69,15 +70,20 @@ for city, i in zip(city2city, range(len(cities))):
 
 for i in range(len(cities)):
     score = final_score[i]
+    index = 0
+    normalized_res = minmax_scale(score)
     for j in range(len(cities)):
         similarity_heatmap_data = similarity_heatmap_data.append(
             {
-                'similarity': score[j],
+                'similarity': normalized_res[index],
                 'city1': cities[i],
                 'city2': cities[j]
             },
             ignore_index=True
         )
+        print(normalized_res[index])
+        index= index+1
 similarity_heatmap = similarity_heatmap_data.pivot(index="city1", columns="city2", values="similarity")
-ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu")
+ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu",vmin=0, vmax=1)
+plt.title("Image Similarity - Option 3")
 plt.show()
