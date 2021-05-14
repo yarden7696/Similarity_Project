@@ -108,6 +108,10 @@ for i in range(len(messages)):
 df.to_excel('10mostSimilarCities.xlsx')
 
 # visualize the results
-ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu", vmin=0, vmax=1)
+ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu", vmin=0, vmax=1, annot=True, annot_kws={'size': 8})
 plt.title("Text Similarity")
+for label1 in ax.get_yticklabels():
+    label1.set_weight('bold')
+for label2 in ax.get_xticklabels():
+    label2.set_weight('bold')
 plt.show()

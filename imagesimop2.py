@@ -108,20 +108,10 @@ for i in range(len(cities)):
        # city2city.append(pic2city.copy())
 # plot sims/ set results
 similarity_heatmap = similarity_heatmap_data.pivot(index="city1", columns="city2", values="similarity")
-ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu", vmin=0, vmax=1)
+ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu", vmin=0, vmax=1, annot=True, annot_kws={'size': 8})
 plt.title("Image Similarity - Option 2")
+for label1 in ax.get_yticklabels():
+    label1.set_weight('bold')
+for label2 in ax.get_xticklabels():
+    label2.set_weight('bold')
 plt.show()
-
-
-
-
-
-
-
-
-
-
-#city2city[i][k].max()  for i in range(len(city2city)):
-# def normalize(lst):
-#     s = sum(lst)
-#     return map(lambda x: float(x)/s, lst)
