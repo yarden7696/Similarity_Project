@@ -39,79 +39,81 @@ def load_USE_encoder(module):
     return lambda x: session.run(embeddings, {sentences: x})
 
 # load the encoder module
-encoder = load_USE_encoder('./USE')
-df = pd.read_excel('first_300_des_res.xlsx',engine='openpyxl')
-docLabels = df['city'].tolist()
-messages= df['description'].tolist()[:12]
+def text_similarity_result():
+    encoder = load_USE_encoder('./USE')
+    df = pd.read_excel('first_300_des_res.xlsx',engine='openpyxl')
+    docLabels = df['city'].tolist()
+    messages= df['description'].tolist()[:12]
 
-# encode the messages
-encoded_messages = encoder(messages)
-# print("encoded",encoded_messages)
+    # encode the messages
+    encoded_messages = encoder(messages)
+    # print("encoded",encoded_messages)
 
-# cosine similarities
-num_messages = len(messages)
-similarities_df = pd.DataFrame()
-similarity_heatmap_data = pd.DataFrame()
-res = []
-for i in range(num_messages):
-    for j in range(num_messages): 
-        # cos(theta) = x * y / (mag_x * mag_y)
-        dot_product = np.dot(encoded_messages[i], encoded_messages[j])
-        mag_i = np.sqrt(np.dot(encoded_messages[i], encoded_messages[i]))
-        mag_j = np.sqrt(np.dot(encoded_messages[j], encoded_messages[j]))
+    # cosine similarities
+    num_messages = len(messages)
+    similarities_df = pd.DataFrame()
+    similarity_heatmap_data = pd.DataFrame()
+    res = []
+    for i in range(num_messages):
+        for j in range(num_messages):
+            # cos(theta) = x * y / (mag_x * mag_y)
+            dot_product = np.dot(encoded_messages[i], encoded_messages[j])
+            mag_i = np.sqrt(np.dot(encoded_messages[i], encoded_messages[i]))
+            mag_j = np.sqrt(np.dot(encoded_messages[j], encoded_messages[j]))
 
-        cos_theta = dot_product / (mag_i * mag_j)
-        res.append(cos_theta)
-        similarities_df = similarities_df.append(
-            {
-                'similarity': cos_theta,
-                'message1': messages[i],
-                'message2': messages[j]
-            },
-            ignore_index=True
-        )
-index = 0
-normalized_res = minmax_scale(res)
-for i in range(num_messages):
-    for j in range(num_messages):
-        # for heatmap
-        similarity_heatmap_data = similarity_heatmap_data.append(
-            {
-                'similarity': normalized_res[index],
-                'city1': docLabels[i],
-                'city2': docLabels[j]
-            },
-            ignore_index=True
-        )
-        index = index+1
+            cos_theta = dot_product / (mag_i * mag_j)
+            res.append(cos_theta)
+            similarities_df = similarities_df.append(
+                {
+                    'similarity': cos_theta,
+                    'message1': messages[i],
+                    'message2': messages[j]
+                },
+                ignore_index=True
+            )
+    index = 0
+    normalized_res = minmax_scale(res)
+    for i in range(num_messages):
+        for j in range(num_messages):
+            # for heatmap
+            similarity_heatmap_data = similarity_heatmap_data.append(
+                {
+                    'similarity': normalized_res[index],
+                    'city1': docLabels[i],
+                    'city2': docLabels[j]
+                },
+                ignore_index=True
+            )
+            index = index+1
 
-# convert similarity matrix into dataframe
-similarity_heatmap = similarity_heatmap_data.pivot("city1", "city2", "similarity")
+    # convert similarity matrix into dataframe
+    similarity_heatmap = similarity_heatmap_data.pivot("city1", "city2", "similarity")
 
-# filter data frame get 10 biggest similarity for each city
-# similarity heatmap = dataframe 12*12
+    # filter data frame get 10 biggest similarity for each city
+    # similarity heatmap = dataframe 12*12
 
-for i in range(len(messages)):
-    result = []
-    for j in range(len(messages)):
-        if i != j :
-            result.append((j, similarity_heatmap.iat[i, j]))
-    # sort the list
-    sort_list = Sort_Tuple(result);
-    ans = ""
-    # 10 most similar cities
-    for a_tuple in sort_list[:10]:
-        index = a_tuple[0]
-        ans += " (" + str(docLabels[index]) +", " + str(a_tuple[1]) +") "
-    df.loc[i, '10 most similarities'] = ans
-#df.to_excel('10 most similar cities.xlsx')
-df.to_excel('10mostSimilarCities.xlsx')
+    for i in range(len(messages)):
+        result = []
+        for j in range(len(messages)):
+            if i != j :
+                result.append((j, similarity_heatmap.iat[i, j]))
+        # sort the list
+        sort_list = Sort_Tuple(result);
+        ans = ""
+        # 10 most similar cities
+        for a_tuple in sort_list[:10]:
+            index = a_tuple[0]
+            ans += " (" + str(docLabels[index]) +", " + str(a_tuple[1]) +") "
+        df.loc[i, '10 most similarities'] = ans
+    #df.to_excel('10 most similar cities.xlsx')
+    df.to_excel('10mostSimilarCities.xlsx')
 
-# visualize the results
-ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu", vmin=0, vmax=1, annot=True, annot_kws={'size': 8})
-plt.title("Text Similarity")
-for label1 in ax.get_yticklabels():
-    label1.set_weight('bold')
-for label2 in ax.get_xticklabels():
-    label2.set_weight('bold')
-plt.show()
+    # visualize the results
+    ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu", vmin=0, vmax=1, annot=True, annot_kws={'size': 8})
+    plt.title("Text Similarity")
+    for label1 in ax.get_yticklabels():
+        label1.set_weight('bold')
+    for label2 in ax.get_xticklabels():
+        label2.set_weight('bold')
+    plt.show()
+    return similarity_heatmap

@@ -6,7 +6,7 @@ import seaborn as sns
 from sklearn.preprocessing import minmax_scale
 
 
-def main():
+def AMT_similarity():
     similarity_heatmap_mean = pd.DataFrame()
     similarity_heatmap_dev = pd.DataFrame()
     df = pd.read_excel('resultsTop12.xlsx', engine='openpyxl')
@@ -57,6 +57,4 @@ def main():
     for label2 in ax.get_xticklabels():
         label2.set_weight('bold')
     plt.show()
-
-if __name__ == '__main__':
-    main()
+    return similarity_heatmap
