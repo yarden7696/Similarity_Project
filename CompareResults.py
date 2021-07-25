@@ -1,15 +1,15 @@
-import sns as sns
-from flatbuffers.builder import np
+import matplotlib.pyplot as plt
 import pandas as pd
-import use
+import seaborn as sns
+from flatbuffers.builder import np
+
 import finalScore
-import imgsimop1
+import historySearch
+import image2vec
 import imagesimop2
 import imagesimop3
-import image2vec
-import historySearch
-import matplotlib.pyplot as plt
-import seaborn as sns
+import imgsimop1
+import use
 
 cities = ['Antalya', 'Bangkok', 'Beijing', 'Crete',
           'Delhi', 'Hong-Kong', 'Los-Angeles', 'Mumbai-Bombay',
@@ -170,7 +170,7 @@ print("combination mat =", combination_mat_dif)
 
 max1 = max(text_dif, image_option1_dif, image_option2_dif, image_option3_dif, image_our_option_dif, history_search_dif,combination_mat_dif)
 res = [('text similarity',text_dif),('image option 1',image_option1_dif) ,('image option 2',image_option2_dif) ,
-       ('image option 3',image_option3_dif) ,('image our option',image_our_option_dif) ,('history search',history_search_dif) ,('combination mat',combination_mat_dif)]
+       ('image option 3',image_option3_dif),('image our option',image_our_option_dif) ,('history search',history_search_dif) ,('combination mat',combination_mat_dif)]
 
 
 print("Best result in median method 1 is :", end= " " )
@@ -365,8 +365,3 @@ for i in res:
         print(i[0],",", end= " ")
 print("")
 print("")
-
-
-#____________________________________________________________________________________
-
-
