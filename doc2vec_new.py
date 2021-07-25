@@ -51,6 +51,7 @@ for i in range(len(docLabels)):
             similarity = similar_doc[docLabels[j]]
         res.append(similarity)
 
+# normalize
 index = 0
 normalized_res = minmax_scale(res)
 for i in range(len(docLabels)):
@@ -64,6 +65,7 @@ for i in range(len(docLabels)):
             ignore_index=True
         )
         index = index + 1
+
 # plot sims/ set results
 similarity_heatmap = similarity_heatmap_data.pivot(index="city1", columns="city2", values="similarity")
 ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu", vmin=0, vmax=1, annot=True, annot_kws={'size': 8})

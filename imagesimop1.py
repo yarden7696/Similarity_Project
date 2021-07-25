@@ -15,7 +15,7 @@ NumPics = 20
 import pandas as pd
 
 
-def image_option3_similarity():
+def image_option1_similarity():
     vector_list = []
     cities = []
     similarity_heatmap_data = pd.DataFrame()
@@ -36,45 +36,32 @@ def image_option3_similarity():
     pic2pics = []
     pic2city = []
     city2city = []
+    total = []
+    res = []
     for i in range(len(cities)):
-        pic2city.clear()
-        # for every pic in city i - make cosine similarity with all other pics from all cities
-        for j in range(NumPics):
-            pic2pics.clear()
-            for k in range(len(cities)):
-                if cities[i] != cities[k]:
-                    for l in range(NumPics):
-                        cos_sim = \
-                        cosine_similarity(vector_list[i][j].reshape((1, -1)), vector_list[k][l].reshape((1, -1)))[0][0]
-                        pic2pics.append((cities[k], l, cos_sim))
-            # add similarity between pic j from city i to all other pics
-            pic2city.append(pic2pics.copy())
-        # city2city - list of cities -
-        # for every city we have list of 20 lists that every list contain similarity between one pic to all other pic
-        city2city.append(pic2city.copy())
-
-    # option3 - for every x in  pictures of city A for every cities
-    # choose to add 5 to city that her picture is the most similar to x
-    max2pic = []
-    max2city = []
-    final_score = []
-    for city, i in zip(city2city, range(len(cities))):
-        max2pic.clear()
-        temp_score = [0] * 12
-        for pic, j in zip(city, range(20)):
-            (city_name, pic_num, sim) = max(pic, key=lambda x: x[2])
-            temp_score[cities.index(city_name)] += 5
-            max2pic.append((city_name, pic_num, sim))
-        final_score.append(temp_score.copy())
-        max2city.append(max2pic.copy())
-
-    for i in range(len(cities)):
-        score = final_score[i]
-        index = 0
-        normalized_res = minmax_scale(score)
         for j in range(len(cities)):
-            if cities[i] == cities[j]:
-                normalized_res[index] = 1
+            pic2city.clear()
+            total2city = 0
+            for k in range(NumPics):
+                total2pics = 0
+                pic2pics.clear()
+                for l in range(NumPics):
+                    cos_sim = \
+                    cosine_similarity(vector_list[i][k].reshape((1, -1)), vector_list[j][l].reshape((1, -1)))[0][0]
+                    total2pics += cos_sim
+                    pic2pics.append(cos_sim)
+                # add similarity between pic k from city i to pics of city j
+                total2city += total2pics
+                pic2city.append(pic2pics.copy())
+            # make heat map of option 1:
+            res.append(float(total2city / 400))
+            total.append(total2city)
+            city2city.append(pic2city.copy())
+
+    index = 0
+    normalized_res = minmax_scale(res)
+    for i in range(len(cities)):
+        for j in range(len(cities)):
             similarity_heatmap_data = similarity_heatmap_data.append(
                 {
                     'similarity': normalized_res[index],
@@ -88,7 +75,7 @@ def image_option3_similarity():
     # plot sims/ set results
     similarity_heatmap = similarity_heatmap_data.pivot(index="city1", columns="city2", values="similarity")
     ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu", vmin=0, vmax=1, annot=True, annot_kws={'size': 8})
-    plt.title("Image Similarity - Option 3")
+    plt.title("Image Similarity - Option 1")
     for label1 in ax.get_yticklabels():
         label1.set_weight('bold')
     for label2 in ax.get_xticklabels():

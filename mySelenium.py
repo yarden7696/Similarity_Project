@@ -6,10 +6,12 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
+
 nltk.download('stopwords')
 
 ps = PorterStemmer()
 stoplist = stopwords.words('english')
+
 
 def clean(s):
     # remove leading and trailing whitespace
@@ -45,6 +47,7 @@ def crawl(city, country, df, j):
     else:
         driver.get("https://www.lonelyplanet.com/" + country + "/" + city)
     try:
+        # click on 'Read More' button
         button = driver.find_element_by_xpath('//*[@title="Read More"]')
         driver.execute_script("arguments[0].click();", button)
     except:

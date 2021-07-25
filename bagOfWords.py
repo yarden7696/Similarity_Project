@@ -10,6 +10,7 @@ cities = df['city'].tolist()[:12]
 data = df['description'].tolist()[:12]
 similarity_heatmap_data = pd.DataFrame()
 
+# bag of words
 vectorizer = CountVectorizer()
 features = vectorizer.fit_transform(data).todense()
 print(vectorizer.vocabulary_)
@@ -17,13 +18,10 @@ print(vectorizer.vocabulary_)
 res = []
 for i in range(len(cities)):
     for j in range(len(cities)):
-        if i == j:
-            similarity = 30
-        else:
-            similarity = euclidean_distances(features[i], features[j])[0][0]
+        similarity = 30 if i == j else euclidean_distances(features[i], features[j])[0][0]
         res.append(similarity)
 
-
+# normalize to 0-1
 index = 0
 normalized_res = minmax_scale(res)
 for i in range(len(cities)):
@@ -37,6 +35,7 @@ for i in range(len(cities)):
             ignore_index=True
         )
         index = index + 1
+
 # plot sims/ set results
 similarity_heatmap = similarity_heatmap_data.pivot(index="city1", columns="city2", values="similarity")
 ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu", vmin=0, vmax=1, annot=True, annot_kws={'size': 8})

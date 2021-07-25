@@ -1,5 +1,4 @@
 import os
-import numpy as np
 import seaborn as sns
 from img2vec_pytorch import Img2Vec
 from sklearn.metrics.pairwise import cosine_similarity
@@ -13,8 +12,6 @@ import matplotlib.pyplot as plt
 
 NumPics = 20
 import pandas as pd
-from numpy import dot
-from numpy.linalg import norm
 
 
 def image_our_option_similarity():
@@ -39,8 +36,7 @@ def image_our_option_similarity():
     for i in range(len(cities)):
         for j in range(len(cities)):
             cos_sim = cosine_similarity(vector_list[i].reshape((1, -1)), vector_list[j].reshape((1, -1)))[0][0]
-            # make heatmap of my option 1:
-            print("similarity between ", cities[i], "to", cities[j], "is:", cos_sim)
+            # make heatmap of option 1
             res.append(cos_sim)
 
     index = 0

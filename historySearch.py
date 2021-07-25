@@ -1,4 +1,3 @@
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -20,6 +19,7 @@ def history_search_similarity():
             res.append(math.log(N[index] + 1))
             index = index + 1
 
+    # normalize
     index = 0
     normalized_res = minmax_scale(res)
     for i in range(len(cities)):
@@ -33,6 +33,8 @@ def history_search_similarity():
                 ignore_index=True
             )
             index = index + 1
+
+    # plot sims/ set results
     similarity_heatmap = similarity_heatmap_data.pivot(index="city1", columns="city2", values="similarity")
     ax = sns.heatmap(similarity_heatmap, cmap="YlGnBu", annot=True, annot_kws={'size': 8})
     plt.title("History Search Similarity")
